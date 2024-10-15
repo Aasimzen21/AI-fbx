@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Image Generator</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: url('/static/image5.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align items to the top */
+            min-height: 100vh; /* Allow the body to grow as needed */
+            overflow: auto; /* Enable scrolling */
+        }
+
+        .container {
+            background-color: rgba(10, 10, 20, 0.8);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 800px;
+            margin: 20px; /* Add margin for better spacing */
+            backdrop-filter: blur(10px);
+            animation: fadeIn 1s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #1cc88a, 0 0 20px #1cc88a;
+        }
+
+        .container p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            line-height: 1.5;
+            text-shadow: 0 0 10px #1cc88a;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: #4e73df;
+            color: #fff;
+            font-size: 1.1rem;
+            text-decoration: none;
+            border-radius: 30px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.25);
+        }
+
+        .btn:hover {
+            background-color: #1cc88a;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .illustration {
+            width: 100%;
+            height: auto;
+            margin-bottom: 30px;
+            transition: transform 0.5s;
+        }
+
+        .illustration:hover {
+            transform: scale(1.05);
+        }
+
+        .context {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            color: #fff;
+            line-height: 1.8;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .context:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        /* Media Queries for responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .container h1 {
+                font-size: 2.5rem;
+            }
+
+            .container p {
+                font-size: 1rem;
+            }
+
+            .btn {
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI-Powered Image Generator</h1>
+        <img src="C:\Users\aasi4\OneDrive\Pictures\oppie.jpg" alt="Image Generator" class="illustration">
+        <p>
+            Our cutting-edge AI Image Generator leverages the power of Stable Diffusion to create stunning visuals from simple text prompts.
+            Whether you are an artist, marketer, or someone exploring creativity, our tool enables you to generate
+            high-quality, unique images in a matter of seconds. Simply describe what you have in mind, and our AI will transform it into a visual masterpiece.
+        </p>
+
+        <div class="context">
+            <h2>Advanced Cloud-Based GPU Service</h2>
+            <p>
+                As image generation requires significant computational resources, we've adopted a cloud-based GPU solution
+                to ensure fast and efficient performance for our users. By utilizing cloud GPUs, we can offer you powerful
+                rendering capabilities without relying on your local hardware. This ensures that even users with limited computational power
+                can create complex and visually impressive images effortlessly.
+            </p>
+
+            <h2>Powered by Gradio and Google Colab</h2>
+            <p>
+                Our platform is seamlessly integrated with <strong>Gradio</strong> and deployed via <strong>Google Colab</strong>, providing a smooth and user-friendly interface.
+                With Gradio, you can interact with the AI models directly through a clean and intuitive web interface. Google Colab
+                serves as the backbone for running the complex computations required for image generation, ensuring that
+                you receive real-time results without delays.
+            </p>
+
+            <h2>Stable Diffusion Technology</h2>
+            <p>
+                Our Image Generator is powered by <strong>Stable Diffusion</strong>, one of the most advanced open-source models for text-to-image transformation.
+                Stable Diffusion ensures that your inputs are accurately translated into stunning visuals with attention to detail and color richness.
+                It provides flexibility in generating artistic styles and fine-tuned outputs based on your preferences, bringing your imagination to life.
+            </p>
+
+            <h2>Join the AI Revolution</h2>
+            <p>
+                Embrace the future of creativity with our AI-powered image generation tool. Explore the endless possibilities of what you can create,
+                and let our AI do the heavy lifting. From concept art to marketing visuals, the only limit is your imagination!
+            </p>
+        </div>
+
+        <form action="/generate_image" method="GET">
+            <button class="btn" type="submit">Try the Image Generator</button>
+        </form>
+    </div>
+</body>
+</html>

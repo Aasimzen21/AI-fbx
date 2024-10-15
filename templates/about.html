@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - AI-Powered Web Platform</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        /* General Styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth; /* Smooth scrolling effect */
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: url('/static/image3.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Container Styling */
+        .container {
+            width: 85%;
+            max-width: 1200px;
+            background-color: rgba(10, 10, 30, 0.9);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.7);
+            text-align: center;
+            overflow-y: auto;
+            height: 90vh; /* Full height with margin for scrolling */
+            backdrop-filter: blur(12px);
+            animation: fadeIn 1s ease-in;
+        }
+
+        /* Fullscreen Button */
+        .fullscreen-btn {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 10px 15px;
+            background-color: #1cc88a;
+            color: #fff;
+            font-size: 1rem;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            z-index: 1000;
+        }
+
+        .fullscreen-btn:hover {
+            background-color: #17a673;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Headings Styling */
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 30px;
+            text-shadow: 0 0 15px #1cc88a, 0 0 30px #1cc88a;
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            margin: 25px 0;
+            text-shadow: 0 0 15px #ff0080, 0 0 30px #ff0080;
+        }
+
+        /* Paragraph Styling */
+        p {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            text-align: justify;
+            text-shadow: 0 0 10px #1cc88a;
+        }
+
+        /* Neon Tabs for Team Members */
+        .team-member {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+        }
+
+        .team-member:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
+        }
+
+        .team-member strong {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        /* Scrollable Section Styling */
+        .container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .container::-webkit-scrollbar-thumb {
+            background-color: #1cc88a;
+            border-radius: 10px;
+        }
+
+        /* Button Styling */
+        .btn {
+            padding: 15px 30px;
+            background-color: #4e73df;
+            color: #fff;
+            font-size: 1.2rem;
+            text-decoration: none;
+            border-radius: 30px;
+            transition: background-color 0.3s, transform 0.3s;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            margin-top: 30px;
+        }
+
+        .btn:hover {
+            background-color: #1cc88a;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            h2 {
+                font-size: 1.8rem;
+            }
+
+            p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fullscreen Button -->
+    <button class="fullscreen-btn" onclick="toggleFullScreen()">Toggle Fullscreen</button>
+
+    <!-- Content Container -->
+    <div class="container">
+        <h1>About Our Project</h1>
+        <p>
+            The AI-Powered Web Platform project aims to enhance the way users interact with technology and creativity. By integrating various AI models, including text-to-image generation, text summarization, and chatbot capabilities, this project provides a comprehensive platform for users to explore and leverage artificial intelligence in their daily tasks.
+        </p>
+
+        <h2>Project Team</h2>
+        <div class="team-member">
+            <strong>Project Guide: ER.V. Sudha, M.E, MISTE</strong>
+            <p>ER.V. Sudha played a pivotal role in motivating the team, fostering an environment of collaboration and innovation.</p>
+        </div>
+        <div class="team-member">
+            <strong>N. Aasim - Team Leader (ECE)</strong>
+            <p>N. Aasim initiated the project idea and designed the front-end interface for a seamless user experience.</p>
+        </div>
+        <div class="team-member">
+            <strong>S. Salaman Raja - Backend Developer (ECE)</strong>
+            <p>Salaman ensured backend functionalities were integrated smoothly with the front-end, providing a stable user experience.</p>
+        </div>
+        <div class="team-member">
+            <strong>S. Sanjay Kumar - Model Creator (ECE)</strong>
+            <p>Sanjay focused on the development and deployment of AI models, ensuring high-quality performance.</p>
+        </div>
+
+        <h2>Join Us on This Journey</h2>
+        <p>We invite you to explore the limitless possibilities of AI-driven creativity with our platform.</p>
+        
+        <form action="/base.html" method="GET">
+            <button class="btn" type="submit">Return to Home</button>
+        </form>
+    </div>
+
+    <!-- JavaScript for Fullscreen -->
+    <script>
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    </script>
+</body>
+</html>

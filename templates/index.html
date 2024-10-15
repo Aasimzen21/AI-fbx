@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Explore Our AI-Powered Tools</h2>
+    <div class="card-group">
+        <div class="card">
+            <h3>Chat with AI</h3>
+            <p>Talk to our chatbot powered by the latest AI models.</p>
+            <a href="/chatbot" class="btn">Try Chatbot</a>
+        </div>
+        <div class="card">
+            <h3>Text Summarizer</h3>
+            <p>Summarize lengthy texts in just a few seconds.</p>
+            <a href="/summarizer" class="btn">Try Summarizer</a>
+        </div>
+        <div class="card">
+            <h3>Image Generator</h3>
+            <p>Generate stunning images from simple text prompts.</p>
+            <a href="/imagebot3" class="btn">Try Image Generator</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

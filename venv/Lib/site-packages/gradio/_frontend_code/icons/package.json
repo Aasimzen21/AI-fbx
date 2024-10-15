@@ -1,0 +1,16 @@
+{
+	"name": "@gradio/icons",
+	"version": "0.7.1",
+	"description": "Gradio UI packages",
+	"type": "module",
+	"main": "src/index.ts",
+	"author": "",
+	"license": "ISC",
+	"private": false,
+	"main_changeset": true,
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/gradio-app/gradio.git",
+		"directory": "js/icons"
+	}
+}

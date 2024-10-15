@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+    <title>Cyberpunk Text Summarizer</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #0f0f0f;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #ffffff;
+        }
+
+        .summarizer-container {
+            width: 100%;
+            max-width: 700px;
+            background-color: rgba(20, 20, 20, 0.8);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5), 0 0 40px rgba(255, 0, 255, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            color: #00ffcc;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc;
+        }
+
+        label {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+            color: #ff0099;
+            text-shadow: 0 0 10px #ff0099;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #00ffcc;
+            resize: none;
+            font-size: 16px;
+            margin-bottom: 15px;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            border-color: #ff0099;
+            outline: none;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        button {
+            background-color: #00ffcc;
+            color: black;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            flex: 1;
+            margin: 0 10px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            background-color: #ff0099;
+            transform: scale(1.05);
+        }
+
+        #summary {
+            margin-top: 20px;
+            background-color: rgba(30, 30, 30, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            display: none;
+        }
+
+        .summary-output {
+            font-size: 16px;
+            color: #ffffff;
+            text-align: left;
+        }
+
+        #char-count {
+            font-size: 12px;
+            color: #999;
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 15px;
+        }
+
+        /* Neon Borders */
+        .neon-border {
+            position: relative;
+            padding: 15px;
+        }
+        .neon-border::before,
+        .neon-border::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            z-index: -1;
+            box-shadow: 0 0 5px rgba(0, 255, 255, 1),
+                        0 0 10px rgba(0, 255, 255, 1),
+                        0 0 15px rgba(0, 255, 255, 1),
+                        0 0 20px rgba(255, 0, 255, 1);
+        }
+    </style>
+</head>
+<body>
+    <div class="summarizer-container neon-border">
+        <h1>Cyberpunk Text Summarizer</h1>
+        <form id="summarizerForm">
+            <label for="text">Enter Text to Summarize:</label>
+            <textarea id="text" name="text" rows="6" placeholder="Paste or write text here..." required></textarea>
+            <div id="char-count">Character count: 0</div>
+            <div class="button-container">
+                <button type="submit">Summarize</button>
+                <button type="button" id="clear-btn">Clear</button>
+            </div>
+        </form>
+        <div id="summary" class="summary-output">
+            <h3 style="color: #00ffcc;">Summary:</h3>
+            <div id="summary-text"></div>
+        </div>
+    </div>
+
+    <script>
+        // Update character count as user types
+        document.getElementById('text').addEventListener('input', function() {
+            const textLength = this.value.length;
+            document.getElementById('char-count').innerText = `Character count: ${textLength}`;
+        });
+
+        // Handle form submission to get summary
+        document.getElementById("summarizerForm").onsubmit = async function(e) {
+            e.preventDefault();
+            const text = document.getElementById("text").value.trim();
+            if (!text) return;
+
+            const response = await fetch("/summarizer", {
+                method: "POST",
+                body: new URLSearchParams({
+                    text: text
+                }),
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            });
+            const result = await response.json();
+
+            // Display the summary in the output area
+            const summaryDiv = document.getElementById("summary");
+            const summaryText = document.getElementById("summary-text");
+            summaryText.innerText = result.summary;
+            summaryDiv.style.display = 'block'; // Show the summary
+        };
+
+        // Clear text and summary output
+        document.getElementById('clear-btn').addEventListener('click', function() {
+            document.getElementById('text').value = '';
+            document.getElementById('char-count').innerText = 'Character count: 0';
+            document.getElementById('summary').style.display = 'none';
+            document.getElementById('summary-text').innerText = '';
+        });
+    </script>
+</body>
+</html>
+
