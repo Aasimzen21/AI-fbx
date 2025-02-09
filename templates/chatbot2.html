@@ -3,193 +3,288 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/style.css">
-    <title>Cyberpunk Text Summarizer</title>
+    <title>AI Text Summarizer</title>
     <style>
+        /* Global Styles */
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #0f0f0f;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #e0e0e0;
             margin: 0;
             padding: 0;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            height: 100vh;
-            color: #ffffff;
+            min-height: 100vh;
+            overflow-y: auto; /* Enable scrolling for the whole page */
+            height: auto; /* Allow body height to adjust based on content */
         }
 
-        .summarizer-container {
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #4e54c8;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background-color: #1a1a2e;
+        }
+
+        /* Header Section */
+        .header {
+            background: rgba(255, 255, 255, 0.1);
             width: 100%;
-            max-width: 700px;
-            background-color: rgba(20, 20, 20, 0.8);
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5), 0 0 40px rgba(255, 0, 255, 0.5);
-            border-radius: 10px;
-            overflow: hidden;
-            padding: 20px;
+            padding: 40px 20px;
             text-align: center;
-            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
+            margin-bottom: 40px;
         }
 
-        h1 {
-            color: #00ffcc;
+        .header h1 {
+            font-size: 3.5rem;
+            color: #ffffff;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, #8f94fb, #4e54c8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #e0e0e0;
+            margin-top: 0;
+        }
+
+        /* Main Container */
+        .main-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px;
+            overflow-y: auto; /* Ensure scrolling inside the main container if needed */
+        }
+
+        /* Input and File Upload Section */
+        .input-container {
+            width: 100%;
             margin-bottom: 20px;
-            text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc;
         }
 
         label {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 10px;
+            font-size: 1.1rem;
+            color: #e0e0e0;
             display: block;
-            color: #ff0099;
-            text-shadow: 0 0 10px #ff0099;
+            margin-bottom: 10px;
+            font-weight: 500;
         }
 
-        textarea {
+        textarea, input[type="file"] {
             width: 100%;
             padding: 15px;
             border-radius: 10px;
-            border: 2px solid #00ffcc;
-            resize: none;
-            font-size: 16px;
-            margin-bottom: 15px;
-            background-color: #1e1e1e;
-            color: #ffffff;
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
-            transition: border-color 0.3s;
+            border: 2px solid #4e54c8;
+            font-size: 1rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: 0.3s;
         }
 
-        textarea:focus {
-            border-color: #ff0099;
+        textarea:focus, input[type="file"]:focus {
             outline: none;
+            border-color: #8f94fb;
+            box-shadow: 0 0 15px #8f94fb;
         }
 
+        /* Buttons */
         .button-container {
             display: flex;
             justify-content: space-between;
+            width: 100%;
+            gap: 20px;
         }
 
         button {
-            background-color: #00ffcc;
-            color: black;
+            background: linear-gradient(135deg, #4e54c8, #8f94fb);
+            color: white;
             border: none;
-            border-radius: 20px;
-            padding: 10px 20px;
+            border-radius: 10px;
+            padding: 15px 30px;
+            font-size: 1.2rem;
             cursor: pointer;
-            font-size: 16px;
-            flex: 1;
-            margin: 0 10px;
-            transition: background-color 0.3s, transform 0.3s;
+            width: 48%;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            letter-spacing: 1px;
         }
 
         button:hover {
-            background-color: #ff0099;
+            background: linear-gradient(135deg, #8f94fb, #4e54c8);
             transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(143, 148, 251, 0.6);
         }
 
+        /* Summary Output Section */
         #summary {
-            margin-top: 20px;
-            background-color: rgba(30, 30, 30, 0.9);
+            margin-top: 30px;
+            background: rgba(0, 0, 0, 0.3);
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             display: none;
+            text-align: left;
+            overflow-y: auto; /* Enable vertical scrolling */
+            max-height: none; /* Remove the fixed height limitation */
         }
 
         .summary-output {
-            font-size: 16px;
-            color: #ffffff;
-            text-align: left;
+            font-size: 1rem;
+            color: #e0e0e0;
         }
 
-        #char-count {
-            font-size: 12px;
-            color: #999;
-            text-align: right;
-            margin-top: -10px;
-            margin-bottom: 15px;
-        }
-
-        /* Neon Borders */
-        .neon-border {
-            position: relative;
-            padding: 15px;
-        }
-        .neon-border::before,
-        .neon-border::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
+        /* Footer Section */
+        footer {
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            padding: 20px;
+            text-align: center;
             width: 100%;
-            height: 100%;
-            border-radius: 10px;
-            z-index: -1;
-            box-shadow: 0 0 5px rgba(0, 255, 255, 1),
-                        0 0 10px rgba(0, 255, 255, 1),
-                        0 0 15px rgba(0, 255, 255, 1),
-                        0 0 20px rgba(255, 0, 255, 1);
+            position: fixed;
+            bottom: 0;
+        }
+
+        footer p {
+            font-size: 1rem;
+            margin: 5px 0;
+        }
+
+        footer a {
+            color: #8f94fb;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Processing Indicator */
+        #processing {
+            display: none;
+            color: #8f94fb;
+            font-size: 1.5rem;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
-    <div class="summarizer-container neon-border">
-        <h1>Cyberpunk Text Summarizer</h1>
-        <form id="summarizerForm">
-            <label for="text">Enter Text to Summarize:</label>
-            <textarea id="text" name="text" rows="6" placeholder="Paste or write text here..." required></textarea>
-            <div id="char-count">Character count: 0</div>
+
+    <!-- Header Section -->
+    <div class="header">
+        <h1>Gemini Text Summarizer</h1>
+        <p>Effortlessly condense lengthy texts into concise summaries.</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Main Content Area -->
+        <form id="summarizerForm" enctype="multipart/form-data">
+            <div class="input-container">
+                <label for="text">Enter Text to Summarize:</label>
+                <textarea id="text" name="text" rows="6" placeholder="Paste or write text here..."></textarea>
+            </div>
+            <div class="input-container">
+                <label for="file">Or Upload a PDF:</label>
+                <input type="file" id="file" name="file" accept=".pdf">
+            </div>
             <div class="button-container">
                 <button type="submit">Summarize</button>
                 <button type="button" id="clear-btn">Clear</button>
             </div>
         </form>
+
+        <!-- Summary Output -->
         <div id="summary" class="summary-output">
-            <h3 style="color: #00ffcc;">Summary:</h3>
+            <h3 style="color: #8f94fb;">Summary:</h3>
             <div id="summary-text"></div>
         </div>
     </div>
 
+    <!-- Footer Section -->
+    <footer>
+        <p>AI Text Summarizer is a tool powered by advanced AI technology to help you summarize long texts quickly and efficiently.</p>
+        <p>Learn more about how it works on <a href="https://example.com" target="_blank">our website</a>.</p>
+    </footer>
+
+    <!-- Processing Indicator -->
+    <div id="processing">Processing...</div>
+
     <script>
-        // Update character count as user types
+        // Update character count for text input
         document.getElementById('text').addEventListener('input', function() {
             const textLength = this.value.length;
             document.getElementById('char-count').innerText = `Character count: ${textLength}`;
         });
 
-        // Handle form submission to get summary
+        // Handle form submission
         document.getElementById("summarizerForm").onsubmit = async function(e) {
             e.preventDefault();
+
+            const formData = new FormData();
             const text = document.getElementById("text").value.trim();
-            if (!text) return;
+            const file = document.getElementById("file").files[0];
+
+            if (text) {
+                formData.append("text", text);
+            }
+
+            if (file) {
+                formData.append("file", file);
+            }
+
+            // Show processing animation
+            document.getElementById('processing').style.display = 'block';
 
             const response = await fetch("/summarizer", {
                 method: "POST",
-                body: new URLSearchParams({
-                    text: text
-                }),
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
+                body: formData,
             });
+
             const result = await response.json();
 
-            // Display the summary in the output area
-            const summaryDiv = document.getElementById("summary");
-            const summaryText = document.getElementById("summary-text");
-            summaryText.innerText = result.summary;
-            summaryDiv.style.display = 'block'; // Show the summary
+            // Hide processing animation and show summary
+            document.getElementById('processing').style.display = 'none';
+            document.getElementById("summary-text").innerText = result.summary;
+            document.getElementById("summary").style.display = 'block';
         };
 
-        // Clear text and summary output
+        // Clear form inputs
         document.getElementById('clear-btn').addEventListener('click', function() {
             document.getElementById('text').value = '';
-            document.getElementById('char-count').innerText = 'Character count: 0';
+            document.getElementById('file').value = '';
             document.getElementById('summary').style.display = 'none';
             document.getElementById('summary-text').innerText = '';
         });
     </script>
 </body>
 </html>
-
