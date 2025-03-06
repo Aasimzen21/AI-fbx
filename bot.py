@@ -32,7 +32,7 @@ model_id = "dreamlike-art/dreamlike-diffusion-1.0"
 pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16, use_safetensors=True)
 pipe = pipe.to("cuda")  # Move to GPU
 
-API_KEY = "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"
+API_KEY = "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"
 MODEL_NAME = "qwen/qwen-vl-plus:free"
 genai.configure(api_key="AIzaSyCcSn22t65ApHqRohShr7lefdbgS9icU2M")
 
