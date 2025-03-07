@@ -63,7 +63,7 @@ summarizer_model = genai.GenerativeModel(model_name="gemini-1.5-flash", generati
 def get_ai_response(user_input):
     url = "https://openrouter.ai/api/v1/chat/completions"
     headers = {
-        "Authorization": f"Bearer {API_KEY}",
+        "Authorization": f"Bearer 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",
         "Content-Type": "application/json"
     }
     data = {
