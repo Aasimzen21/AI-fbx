@@ -8,8 +8,8 @@ import google.generativeai as genai
 from flask_sqlalchemy import SQLAlchemy
 from PyPDF2 import PdfReader
 import json
-from diffusers import StableDiffusionPipeline  # Added for Stable Diffusion
-import torch  # Added for torch support
+from diffusers import StableDiffusionPipeline
+import torch
 
 app = Flask(__name__, template_folder='/content/AI-fbx/templates')
 run_with_ngrok(app)
@@ -32,8 +32,7 @@ model_id = "dreamlike-art/dreamlike-diffusion-1.0"
 pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16, use_safetensors=True)
 pipe = pipe.to("cuda")  # Move to GPU
 
-API_KEY = "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"
-MODEL_NAME = "qwen/qwen-vl-plus:free"
+# Configure Gemini API
 genai.configure(api_key="AIzaSyCcSn22t65ApHqRohShr7lefdbgS9icU2M")
 
 # Configure SQLite Database for Chat History
@@ -49,7 +48,7 @@ class ChatHistory(db.Model):
 with app.app_context():
     db.create_all()
 
-# Summarizer Configuration (Gemini remains for Summarizer)
+# Summarizer Configuration (Gemini)
 summarizer_generation_config = {
     "temperature": 0.5,
     "top_p": 0.9,
@@ -59,19 +58,23 @@ summarizer_generation_config = {
 }
 summarizer_model = genai.GenerativeModel(model_name="gemini-1.5-flash", generation_config=summarizer_generation_config)
 
-# Chatbot Function
+# Chatbot Configuration (Gemini)
+chatbot_generation_config = {
+    "temperature": 0.7,
+    "top_p": 0.95,
+    "top_k": 40,
+    "max_output_tokens": 500,
+    "response_mime_type": "text/plain",
+}
+chatbot_model = genai.GenerativeModel(model_name="gemini-1.5-flash", generation_config=chatbot_generation_config)
+
+# Chatbot Function (Updated to use Gemini)
 def get_ai_response(user_input):
-    url = "https://openrouter.ai/api/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer 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",
-        "Content-Type": "application/json"
-    }
-    data = {
-        "model": MODEL_NAME,
-        "messages": [{"role": "user", "content": user_input}]
-    }
-    response = requests.post(url, headers=headers, data=json.dumps(data))
-    return response.json().get("choices", [{}])[0].get("message", {}).get("content", "No response")
+    try:
+        response = chatbot_model.generate_content(user_input)
+        return response.text
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 # Routes
 @app.route('/')
@@ -110,14 +113,12 @@ def summarizer():
         return jsonify(summary=ai_summary)
     return render_template('chatbot2.html')
 
-# Updated Image Generator Route using Stable Diffusion
+# Image Generator Route using Stable Diffusion
 @app.route('/generate_image', methods=['POST'])
 def generate_image():
     user_prompt = request.form['prompt']
     try:
-        # Generate image using Stable Diffusion pipeline
         image = pipe(user_prompt).images[0]
-        # Save the image to the static folder
         image_path = "./static/generated_image.png"
         if not os.path.exists('./static'):
             os.makedirs('./static')
@@ -150,4 +151,4 @@ def delete_history():
 if __name__ == '__main__':
     setup_ngrok()  # Install and configure ngrok
     start_ngrok()  # Start ngrok tunnel
-    app.run()      # Run Flask app with ngrok
+    app.run()      # Run Flask app with
