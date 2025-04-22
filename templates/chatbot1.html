@@ -192,6 +192,23 @@
             box-shadow: 0 0 20px rgba(96, 165, 250, 0.5);
         }
 
+        #pdf-upload {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 1rem;
+            border-radius: 20px;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            color: #1e293b;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.4s ease;
+        }
+
+        #pdf-upload:hover {
+            border-color: #60a5fa;
+            background: #fff;
+            box-shadow: 0 0 20px rgba(96, 165, 250, 0.5);
+        }
+
         .btn {
             background: linear-gradient(145deg, #60a5fa, #a78bfa);
             border: none;
@@ -290,6 +307,11 @@
                 padding: 0.9rem 1.2rem;
             }
 
+            #pdf-upload {
+                font-size: 0.9rem;
+                padding: 0.8rem;
+            }
+
             .btn {
                 padding: 0.85rem;
             }
@@ -302,7 +324,7 @@
             <div class="header-content">
                 <div class="logo"></div>
                 <div class="app-title">Newgen AI</div>
-                <div class="slogan">Powered by Qwen AI</div>
+                <div class="slogan">Powered by Gemini AI</div>
             </div>
         </div>
 
@@ -313,22 +335,24 @@
             </div>
         </div>
 
-        <div class="input-area">
-            <input type="text" id="message" placeholder="Ask me anything..." required>
-            <button class="btn" id="send-btn" title="Send message">
+        <form id="chat-form" class="input-area" enctype="multipart/form-data">
+            <input type="text" id="message" name="message" placeholder="Ask me anything...">
+            <input type="file" id="pdf-upload" name="file" accept=".pdf" title="Upload a PDF">
+            <button type="submit" class="btn" id="send-btn" title="Send message">
                 <i class="fas fa-paper-plane"></i>
             </button>
-            <button class="btn" id="clear-chat" title="Clear chat">
+            <button type="button" class="btn" id="clear-chat" title="Clear chat">
                 <i class="fas fa-eraser"></i>
             </button>
-            <button class="btn btn-danger" id="delete-history" title="Delete history">
+            <button type="button" class="btn btn-danger" id="delete-history" title="Delete history">
                 <i class="fas fa-trash"></i>
             </button>
-        </div>
+        </form>
     </div>
 
     <script>
         $(document).ready(function() {
+            // Load chat history
             $.get('/chat_history', function(data) {
                 let historyHtml = '';
                 const chatHistory = Array.isArray(data) ? data : [];
@@ -342,31 +366,50 @@
                 $('#chat-window').scrollTop($('#chat-window')[0].scrollHeight);
             });
 
-            $('#send-btn').click(function() {
-                let userMessage = $('#message').val();
-                if (!userMessage.trim()) return;
+            // Handle form submission
+            $('#chat-form').submit(function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const userMessage = $('#message').val().trim();
+                const fileInput = $('#pdf-upload')[0].files[0];
 
-                $('#messages').append(`<div class="message user-message"><strong>You:</strong> ${userMessage}</div>`);
+                // Display user message if text input is provided
+                if (userMessage) {
+                    $('#messages').append(`<div class="message user-message"><strong>You:</strong> ${userMessage}</div>`);
+                } else if (fileInput) {
+                    $('#messages').append(`<div class="message user-message"><strong>You:</strong> Uploaded PDF: ${fileInput.name}</div>`);
+                } else {
+                    return; // No input provided
+                }
+
                 $('#message').val('');
+                $('#pdf-upload').val('');
                 $('#typing-indicator').show();
                 $('#chat-window').scrollTop($('#chat-window')[0].scrollHeight);
 
-                $.post('/chatbot', { message: userMessage })
-                    .done(function(data) {
+                $.ajax({
+                    url: '/chatbot',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(data) {
                         $('#typing-indicator').hide();
                         if (data && data.response) {
                             $('#messages').append(`<div class="message ai-response"><strong>AI:</strong><br>${formatResponse(data.response)}</div>`);
                         } else {
-                            $('#messages').append(`<div class="message ai-response"><strong>System:</strong><br>Sorry, there was an error.</div>`);
+                            $('#messages').append(`<div class="message ai-response"><strong>System:</strong><br>${data.error || 'Sorry, there was an error.'}</div>`);
                         }
                         $('#chat-window').scrollTop($('#chat-window')[0].scrollHeight);
-                    })
-                    .fail(function() {
+                    },
+                    error: function() {
                         $('#typing-indicator').hide();
                         $('#messages').append(`<div class="message ai-response"><strong>System:</strong><br>Sorry, there was an error.</div>`);
-                    });
+                    }
+                });
             });
 
+            // Clear chat
             $('#clear-chat').click(function() {
                 $('#messages').empty();
                 $('#chat-window').scrollTop($('#chat-window')[0].scrollHeight);
@@ -375,6 +418,7 @@
                 });
             });
 
+            // Delete history
             $('#delete-history').click(function() {
                 $.get('/delete_history', function() {
                     $('#messages').empty();
