@@ -10,33 +10,66 @@ from PyPDF2 import PdfReader
 import json
 from diffusers import StableDiffusionPipeline
 import torch
+import logging
 
-app = Flask(__name__, template_folder='/content/AI-fbx/templates')
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Define base directory for Colab
+BASE_DIR = "/content/AI-fbx"
+STATIC_DIR = os.path.join(BASE_DIR, "static")
+TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
+
+# Create directories if they don't exist
+os.makedirs(STATIC_DIR, exist_ok=True)
+os.makedirs(TEMPLATES_DIR, exist_ok=True)
+
+# Initialize Flask app with explicit static and template folders
+app = Flask(__name__, static_folder=STATIC_DIR, template_folder=TEMPLATES_DIR)
 run_with_ngrok(app)
 
 # Setup ngrok
 def setup_ngrok():
-    subprocess.run("curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null", shell=True, check=True)
-    subprocess.run('echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list', shell=True, check=True)
-    subprocess.run("sudo apt update && sudo apt install ngrok -y", shell=True, check=True)
-    authtoken = "2n1l3KxTC23zFLnuM94ryL284Wp_TJuu2gPEffpuYqvM2q59"
-    subprocess.run(f"ngrok config add-authtoken {authtoken}", shell=True, check=True)
+    try:
+        subprocess.run(
+            "curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null",
+            shell=True, check=True
+        )
+        subprocess.run(
+            'echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list',
+            shell=True, check=True
+        )
+        subprocess.run("sudo apt update && sudo apt install ngrok -y", shell=True, check=True)
+        authtoken = "2n1l3KxTC23zFLnuM94ryL284Wp_TJuu2gPEffpuYqvM2q59"
+        subprocess.run(f"ngrok config add-authtoken {authtoken}", shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Error setting up ngrok: {e}")
+        raise
 
 def start_ngrok():
-    ngrok_process = subprocess.Popen(["ngrok", "http", "5000"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    time.sleep(2)  # Wait for ngrok to initialize
-    return ngrok_process
+    try:
+        ngrok_process = subprocess.Popen(["ngrok", "http", "5000"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        time.sleep(2)  # Wait for ngrok to initialize
+        return ngrok_process
+    except Exception as e:
+        logger.error(f"Error starting ngrok: {e}")
+        raise
 
-# Configure Stable Diffusion Pipeline (global initialization)
+# Configure Stable Diffusion Pipeline
 model_id = "dreamlike-art/dreamlike-diffusion-1.0"
-pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16, use_safetensors=True)
-pipe = pipe.to("cuda")  # Move to GPU
+try:
+    pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16, use_safetensors=True)
+    pipe = pipe.to("cuda")  # Move to GPU
+except Exception as e:
+    logger.error(f"Error initializing Stable Diffusion pipeline: {e}")
+    raise
 
 # Configure Gemini API
 genai.configure(api_key="AIzaSyCcSn22t65ApHqRohShr7lefdbgS9icU2M")
 
 # Configure SQLite Database for Chat History
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///chat_history.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(BASE_DIR, 'chat_history.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -48,7 +81,7 @@ class ChatHistory(db.Model):
 with app.app_context():
     db.create_all()
 
-# Summarizer Configuration (Gemini)
+# Summarizer Configuration
 summarizer_generation_config = {
     "temperature": 0.5,
     "top_p": 0.9,
@@ -58,23 +91,15 @@ summarizer_generation_config = {
 }
 summarizer_model = genai.GenerativeModel(model_name="gemini-1.5-flash", generation_config=summarizer_generation_config)
 
-# Chatbot Configuration (Gemini)
-chatbot_generation_config = {
-    "temperature": 0.7,
-    "top_p": 0.95,
-    "top_k": 40,
-    "max_output_tokens": 500,
-    "response_mime_type": "text/plain",
-}
-chatbot_model = genai.GenerativeModel(model_name="gemini-1.5-flash", generation_config=chatbot_generation_config)
-
-# Chatbot Function (Updated to use Gemini)
+# Chatbot Function using Gemini
 def get_ai_response(user_input):
     try:
-        response = chatbot_model.generate_content(user_input)
+        chat_model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+        response = chat_model.generate_content(user_input)
         return response.text
     except Exception as e:
-        return f"Error: {str(e)}"
+        logger.error(f"Error in Gemini response: {e}")
+        return "Error getting AI response"
 
 # Routes
 @app.route('/')
@@ -88,7 +113,23 @@ def about():
 @app.route('/chatbot', methods=['GET', 'POST'])
 def chatbot():
     if request.method == 'POST':
-        user_message = request.form['message']
+        user_message = ""
+        if 'message' in request.form and request.form['message']:
+            user_message = request.form['message']
+        elif 'file' in request.files:
+            uploaded_file = request.files['file']
+            if uploaded_file.filename.endswith('.pdf'):
+                try:
+                    pdf_reader = PdfReader(uploaded_file)
+                    user_message = " ".join(page.extract_text() for page in pdf_reader.pages)
+                except Exception as e:
+                    logger.error(f"Error reading PDF: {e}")
+                    return jsonify(error="Error reading PDF file")
+            else:
+                return jsonify(error="Unsupported file format. Please upload a PDF.")
+        else:
+            return jsonify(error="No message or file provided")
+
         ai_response = get_ai_response(user_message)
         new_chat = ChatHistory(user_message=user_message, ai_response=ai_response)
         db.session.add(new_chat)
@@ -108,23 +149,33 @@ def summarizer():
                 user_text = " ".join(page.extract_text() for page in pdf_reader.pages)
             else:
                 return jsonify(error="Unsupported file format. Please upload a PDF.")
-        summary_response = summarizer_model.generate_content(f"Summarize the following text: {user_text}")
-        ai_summary = summary_response.text
-        return jsonify(summary=ai_summary)
+        try:
+            summary_response = summarizer_model.generate_content(f"Summarize the following text: {user_text}")
+            ai_summary = summary_response.text
+            return jsonify(summary=ai_summary)
+        except Exception as e:
+            logger.error(f"Error in summarizer: {e}")
+            return jsonify(error=str(e))
     return render_template('chatbot2.html')
 
-# Image Generator Route using Stable Diffusion
+# Updated Image Generator Route using Stable Diffusion
 @app.route('/generate_image', methods=['POST'])
 def generate_image():
     user_prompt = request.form['prompt']
     try:
+        # Generate image using Stable Diffusion pipeline
+        logger.info(f"Generating image for prompt: {user_prompt}")
         image = pipe(user_prompt).images[0]
-        image_path = "./static/generated_image.png"
-        if not os.path.exists('./static'):
-            os.makedirs('./static')
+        # Save the image to the static folder with a unique filename
+        image_filename = f"generated_image_{int(time.time())}.png"
+        image_path = os.path.join(STATIC_DIR, image_filename)
         image.save(image_path)
-        return jsonify(image_path=image_path)
+        logger.info(f"Image saved to: {image_path}")
+        # Return the URL path for the frontend
+        image_url = f"/static/{image_filename}"
+        return jsonify(image_path=image_url)
     except Exception as e:
+        logger.error(f"Error generating image: {e}")
         return jsonify(error=str(e))
 
 @app.route('/imagebot3')
@@ -151,4 +202,5 @@ def delete_history():
 if __name__ == '__main__':
     setup_ngrok()  # Install and configure ngrok
     start_ngrok()  # Start ngrok tunnel
-    app.run()      # Run Flask app with
+    logger.info("Starting Flask app")
+    app.run()      # Run Flask app with ngrok
