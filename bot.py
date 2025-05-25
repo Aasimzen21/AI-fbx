@@ -94,6 +94,10 @@ summarizer_model = genai.GenerativeModel(model_name="gemini-1.5-flash", generati
 # Chatbot Function using Gemini
 def get_ai_response(user_input):
     try:
+        # Check if the user is asking about the AI's identity
+        if user_input.lower().strip() in ["who are you", "who are you?", "who is this?", "who is this"]:
+            return "I am Qwen AI, created by Alibaba Cloud, here to assist you with your questions and tasks!"
+        
         chat_model = genai.GenerativeModel(model_name="gemini-1.5-flash")
         response = chat_model.generate_content(user_input)
         return response.text
@@ -114,21 +118,29 @@ def about():
 def chatbot():
     if request.method == 'POST':
         user_message = ""
+        
+        # Process text input if provided
         if 'message' in request.form and request.form['message']:
-            user_message = request.form['message']
-        elif 'file' in request.files:
+            user_message += request.form['message'].strip()
+        
+        # Process uploaded PDF file if provided and valid
+        if 'file' in request.files and request.files['file'].filename:
             uploaded_file = request.files['file']
-            if uploaded_file.filename.endswith('.pdf'):
+            if uploaded_file.filename.lower().endswith('.pdf'):
                 try:
                     pdf_reader = PdfReader(uploaded_file)
-                    user_message = " ".join(page.extract_text() for page in pdf_reader.pages)
+                    pdf_text = " ".join(page.extract_text() for page in pdf_reader.pages)
+                    # Append PDF text to user message (if any)
+                    user_message = (user_message + " " + pdf_text).strip() if user_message else pdf_text
                 except Exception as e:
                     logger.error(f"Error reading PDF: {e}")
                     return jsonify(error="Error reading PDF file")
             else:
                 return jsonify(error="Unsupported file format. Please upload a PDF.")
-        else:
-            return jsonify(error="No message or file provided")
+        
+        # Check if there's any input to process
+        if not user_message:
+            return jsonify(error="No message or valid file provided")
 
         ai_response = get_ai_response(user_message)
         new_chat = ChatHistory(user_message=user_message, ai_response=ai_response)
